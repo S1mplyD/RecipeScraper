@@ -1,17 +1,14 @@
-import { Schema, model, Document } from "mongoose";
+const mongoose = require("mongoose");
 
-const recipeSchema =
-  new Schema() <
-  RecipeDocument >
-  {
-    url: { type: String, required: true },
-    img: { type: String, required: true },
-    name: { type: String, required: true },
-    category: { type: String, required: true },
-    desc: { type: String, required: true },
-    lang: { type: String, required: true },
-  };
+const recipeSchema = new mongoose.Schema({
+  url: { type: String, required: true, unique: true },
+  img: { type: String, required: true },
+  name: { type: String, required: true },
+  category: { type: String, required: true },
+  desc: { type: String, required: true },
+  lang: { type: String, required: true },
+});
 
-const recipeModel = model < RecipeDocument > ("recipeData", recipeSchema);
+const recipeModel = mongoose.model("recipeData", recipeSchema);
 
-export default recipeModel;
+module.exports = recipeModel;
