@@ -6,14 +6,14 @@ const fs = require("fs");
 async function scrapeWeb(site) {
   if (site.uri.includes("giallozafferano.it")) {
     if (site.downloadedPages > 0)
-      giallozafferano(site.uri + `/page${site.downloadedPages + 1}`);
-    else giallozafferano(site.uri);
+      giallozafferano(site.uri + `/page${site.downloadedPages + 1}`, site.uri);
+    else giallozafferano(site.uri, site.uri);
   } else if (site.uri.includes("allrecipes.com")) {
     allrecipes(site.uri);
   } else console.log("not supported");
 }
 
-async function giallozafferano(site) {
+async function giallozafferano(site, originalSite) {
   const browser = await puppeteer.launch({ headless: "new" });
   const page = await browser.newPage();
   await page.goto(site, { waitUntil: "domcontentloaded" });
@@ -23,17 +23,17 @@ async function giallozafferano(site) {
       return await el.evaluate((x) => x.innerHTML.replace("\t", ""));
     })
   );
-  const $ = cheerio.load(result[0]);
-  //nome ricetta
-  console.log($(".gz-title").text());
-  //link ricetta
-  console.log($(".gz-title a").attr("href"));
-  //immagine ricetta
-  console.log($(".gz-card-image img").attr("src"));
-  //descrizione ricetta
-  console.log($(".gz-description").text());
-  //categoria
-  console.log($(".gz-category").text());
+  // const $ = cheerio.load(result[0]);
+  // //nome ricetta
+  // console.log($(".gz-title").text());
+  // //link ricetta
+  // console.log($(".gz-title a").attr("href"));
+  // //immagine ricetta
+  // console.log($(".gz-card-image img").attr("src"));
+  // //descrizione ricetta
+  // console.log($(".gz-description").text());
+  // //categoria
+  // console.log($(".gz-category").text());
 
   for (let i of result) {
     const $ = cheerio.load(i);
@@ -49,13 +49,13 @@ async function giallozafferano(site) {
   const file = fs.readFileSync("sites.json", "utf-8");
   const jsonArray = JSON.parse(file);
   const edit = jsonArray.find((el) => {
-    return el.uri === site;
+    return el.uri === originalSite;
   });
   if (edit) {
     edit.downloadedPages = edit.downloadedPages + 1;
   }
   const jsonString = JSON.stringify(jsonArray, null, 2);
-  fs.writeFile(filePath, jsonString, "utf8", (err) => {
+  fs.writeFile("sites.json", jsonString, "utf8", (err) => {
     if (err) {
       console.error("Errore nella scrittura del file JSON:", err);
     } else {
