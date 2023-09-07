@@ -8,22 +8,22 @@ async function scrapeWeb(site) {
   console.log(site);
   if (site.uri.includes("giallozafferano.it")) {
     if (site.downloadedPages > 0 && site.downloadedPages <= site.totalPages)
-      giallozafferano(
+      await giallozafferano(
         site.uri + `/page${site.downloadedPages + 1}`,
         site.uri,
         "it"
       );
-    else giallozafferano(site.uri, site.uri, "it");
+    else await giallozafferano(site.uri, site.uri, "it");
   } else if (site.uri.includes("allrecipes.com")) {
     await allrecipes(site.uri, site.uri);
   } else if (site.uri.includes("giallozafferano.com")) {
     if (site.downloadedPages > 0 && site.downloadedPages <= site.totalPages)
-      giallozafferano(
+      await giallozafferano(
         site.uri + `/page${site.downloadedPages + 1}`,
         site.uri,
         "en"
       );
-    else giallozafferano(site.uri, site.uri, "en");
+    else await giallozafferano(site.uri, site.uri, "en");
   } else console.log("not supported");
 }
 
