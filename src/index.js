@@ -11,11 +11,13 @@ mongoose
   .then(async () => {
     let sitesRaw = fs.readFileSync("sites.json");
     const sites = JSON.parse(sitesRaw);
-    console.log(sites);
 
     console.log("connected to mongoose");
-    for (i of sites) await scrapeWeb(i);
     console.log("[Preparing to steal some data...]");
+
+    for (i of sites) {
+      await scrapeWeb(i);
+    }
   })
   .catch((error) => {
     console.log(error);
