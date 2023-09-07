@@ -15,7 +15,7 @@ async function scrapeWeb(site) {
       );
     else giallozafferano(site.uri, site.uri, "it");
   } else if (site.uri.includes("allrecipes.com")) {
-    allrecipes(site.uri, site.uri);
+    await allrecipes(site.uri, site.uri);
   } else if (site.uri.includes("giallozafferano.com")) {
     if (site.downloadedPages > 0 && site.downloadedPages <= site.totalPages)
       giallozafferano(
