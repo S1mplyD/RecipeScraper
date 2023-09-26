@@ -4,20 +4,24 @@ const { config } = require("dotenv");
 const { resolve } = require("path");
 config({ path: resolve(__dirname, "..", ".env") });
 const fs = require("fs");
+const { deleteRegex } = require("./delete");
+const fixCategories = require("./fixCategories").fixCategories;
 
 mongoose.set("strictQuery", false);
 mongoose
   .connect(process.env.MONGO || "")
   .then(async () => {
-    let sitesRaw = fs.readFileSync("sites.json");
-    const sites = JSON.parse(sitesRaw);
-
+    // let sitesRaw = fs.readFileSync("sites.json");
+    // const sites = JSON.parse(sitesRaw);
+    //
     console.log("connected to mongoose");
-    console.log("[Preparing to steal some data...]");
-
-    for (i of sites) {
-      await scrapeWeb(i);
-    }
+    // console.log("[Preparing to steal some data...]");
+    // // await deleteRegex("allrecipes");
+    // for (i of sites) {
+    //   await scrapeWeb(i);
+    // }
+    const update = await fixCategories();
+    console.log(update);
   })
   .catch((error) => {
     console.log(error);
