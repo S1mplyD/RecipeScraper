@@ -10,6 +10,7 @@ const recipeSchema = new mongoose.Schema({
   desc: { type: String, required: true },
   lang: { type: String, required: true },
   featuredData: { type: [String] },
+  directions: { type: String },
 });
 
 const recipeModel = mongoose.model("recipeData", recipeSchema);
