@@ -3,9 +3,10 @@ const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 
 const convertRecipeToText = async () => {
-  const recipes = await recipeModel.find({
-    url: { $regex: "allrecipes", $options: "i" },
-  });
+  // const recipes = await recipeModel.find({
+  //   url: { $regex: "allrecipes", $options: "i" },
+  // });
+  const recipes = await recipeModel.find();
   for (let i of recipes) {
     if (i.url.includes("giallozafferano")) {
       await convertGZ(i);
@@ -17,6 +18,23 @@ const convertGZ = async (recipe) => {
   const browser = await puppeteer.launch({ headless: "new" });
   const page = await browser.newPage();
   await page.goto(recipe.url, { waitUntil: "domcontentloaded" });
+  const ingredients = await page.$$(".gz-ingredients");
+  let result = await Promise.all(
+    ingredients.map(async (el) => {
+      return await el.evaluate((x) =>
+        x.innerHTML.replaceAll("\t", "").replaceAll("\n", ""),
+      );
+    }),
+  );
+  console.log(recipe.url);
+  let ingredientsList = [];
+  for (let i in result) {
+    const $ = cheerio.load(result[i]);
+    ingredientsList.push(
+      $("dd").text().replaceAll("\t", "").replaceAll("\n", ""),
+    );
+    console.log($("dd").text().replaceAll("\n", ""));
+  }
 };
 
 const convertAllRecipe = async (recipe) => {
