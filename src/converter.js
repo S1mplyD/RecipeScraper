@@ -15,25 +15,64 @@ const convertRecipeToText = async () => {
 };
 
 const convertGZ = async (recipe) => {
-  const browser = await puppeteer.launch({ headless: "new" });
-  const page = await browser.newPage();
-  await page.goto(recipe.url, { waitUntil: "domcontentloaded" });
-  const ingredients = await page.$$(".gz-ingredients");
-  let result = await Promise.all(
-    ingredients.map(async (el) => {
-      return await el.evaluate((x) =>
-        x.innerHTML.replaceAll("\t", "").replaceAll("\n", ""),
-      );
-    }),
-  );
-  console.log(recipe.url);
-  let ingredientsList = [];
-  for (let i in result) {
-    const $ = cheerio.load(result[i]);
-    ingredientsList.push(
-      $("dd").text().replaceAll("\t", "").replaceAll("\n", ""),
+  try {
+    const browser = await puppeteer.launch({ headless: "new" });
+    const page = await browser.newPage();
+    await page.goto(recipe.url, { waitUntil: "domcontentloaded" });
+    const ingredients = await page.$$(".gz-list-ingredients");
+    let result = await Promise.all(
+      ingredients.map(async (el) => {
+        return await el.evaluate((x) =>
+          x.innerHTML.replaceAll("\t", "").replaceAll("\n", ""),
+        );
+      }),
     );
-    console.log($("dd").text().replaceAll("\n", ""));
+    console.log(recipe.url);
+    let ingredientsList = [];
+    for (let i in result) {
+      const $ = cheerio.load(result[i]);
+      $("dd").each(function (i, elem) {
+        let ingredientString = "";
+        let ingredient = "";
+        for (let j of elem.children) {
+          for (let k of j.children) {
+            ingredient = k.data;
+          }
+          ingredientString += ingredient + " ";
+        }
+        ingredientsList.push(ingredientString);
+      });
+    }
+    const directions = await page.$$(".gz-content-recipe");
+
+    const newResult = await Promise.all(
+      directions.map(async (el) => {
+        return await el.evaluate((x) => x.innerHTML.replace("\t", ""));
+      }),
+    );
+    let directionsString = "";
+    for (let i in newResult) {
+      const $ = cheerio.load(newResult[i]);
+      $(".gz-content-recipe-step-img-container").remove();
+      $(".num-step").remove();
+      let direction = $(".gz-content-recipe-step")
+        .text()
+        .replaceAll("\t", "")
+        .replaceAll("\n", "");
+      if (direction !== "") {
+        directionsString = direction;
+      }
+    }
+    await browser.close();
+    await recipeModel.updateOne(
+      { url: recipe.url },
+      {
+        $set: { ingredients: ingredientsList },
+        directions: directionsString,
+      },
+    );
+  } catch (e) {
+    console.log(e);
   }
 };
 
