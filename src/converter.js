@@ -6,7 +6,9 @@ const convertRecipeToText = async () => {
   // const recipes = await recipeModel.find({
   //   url: { $regex: "allrecipes", $options: "i" },
   // });
-  const recipes = await recipeModel.find();
+  const recipes = await recipeModel.find({
+    directions: { $exists: false },
+  });
   for (let i of recipes) {
     if (i.url.includes("giallozafferano")) {
       await convertGZ(i);
