@@ -25,9 +25,9 @@ const convertGZ = async (recipe) => {
     let result = await Promise.all(
       ingredients.map(async (el) => {
         return await el.evaluate((x) =>
-          x.innerHTML.replaceAll("\t", "").replaceAll("\n", ""),
+          x.innerHTML.replaceAll("\t", "").replaceAll("\n", "")
         );
-      }),
+      })
     );
     console.log(recipe.url);
     let ingredientsList = [];
@@ -50,7 +50,7 @@ const convertGZ = async (recipe) => {
     const newResult = await Promise.all(
       directions.map(async (el) => {
         return await el.evaluate((x) => x.innerHTML.replace("\t", ""));
-      }),
+      })
     );
     let directionsString = "";
     for (let i in newResult) {
@@ -71,7 +71,7 @@ const convertGZ = async (recipe) => {
       {
         $set: { ingredients: ingredientsList },
         directions: directionsString,
-      },
+      }
     );
   } catch (e) {
     console.log(e);
@@ -84,13 +84,13 @@ const convertAllRecipe = async (recipe) => {
     const page = await browser.newPage();
     await page.goto(recipe.url, { waitUntil: "domcontentloaded" });
     const ingredients = await page.$$(
-      ".mntl-structured-ingredients__list-item",
+      ".mntl-structured-ingredients__list-item"
     );
 
     let result = await Promise.all(
       ingredients.map(async (el) => {
         return await el.evaluate((x) => x.innerHTML.replace("\t", ""));
-      }),
+      })
     );
     console.log(recipe.url);
 
@@ -102,7 +102,7 @@ const convertAllRecipe = async (recipe) => {
     }
     const directions = await page.$("#recipe__steps_1-0");
     const newresult = await directions.evaluate((x) =>
-      x.innerHTML.replace("\t", ""),
+      x.innerHTML.replace("\t", "")
     );
     const $ = cheerio.load(newresult);
     $("figure").remove();
@@ -118,7 +118,7 @@ const convertAllRecipe = async (recipe) => {
       {
         $set: { ingredients: ingredientsString },
         directions: directionsString,
-      },
+      }
     );
   } catch (e) {
     console.log(e);
