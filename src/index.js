@@ -6,11 +6,12 @@ config({ path: resolve(__dirname, "..", ".env") });
 const fs = require("fs");
 const { deleteRegex } = require("./delete");
 const { convertRecipeToText } = require("./converter");
+const fixUndefined = require("./fixRecipes");
 const fixCategories = require("./fixCategories").fixCategories;
 
 mongoose.set("strictQuery", false);
 mongoose
-  .connect(process.env.MONGO || "")
+  .connect(process.env.MONGO_URL || "")
   .then(async () => {
     // let sitesRaw = fs.readFileSync("sites.json");
     // const sites = JSON.parse(sitesRaw);
@@ -23,7 +24,8 @@ mongoose
     // }
     // const update = await fixCategories();
     // console.log(update);
-    await convertRecipeToText();
+    // await convertRecipeToText();
+    await fixUndefined();
   })
   .catch((error) => {
     console.log(error);
